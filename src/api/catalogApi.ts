@@ -22,7 +22,7 @@
  */
 
 import { API_BASE_URL } from "../config/constants";
-import type { APIItem } from "../data/mockApis";
+import MOCK_APIS, { type APIItem } from "../data/mockApis";
 
 /** Path the marketplace catalogue is read from. */
 export const CATALOG_PATH = "/v1/apis";
@@ -185,6 +185,14 @@ export const catalogApi: CatalogApi = createCatalogApi();
  * can `vi.mock` this module with a single replacement and drive every
  * loading / success / failure path of the page.
  */
-export function fetchCatalog(signal?: AbortSignal): Promise<APIItem[]> {
-  return catalogApi.fetchCatalog(signal);
+export async function fetchCatalog(signal?: AbortSignal): Promise<APIItem[]> {
+  try {
+    return await catalogApi.fetchCatalog(signal);
+  } catch (err) {
+    // Aborts must still propagate so superseded requests stay cancelled.
+    if (signal?.aborted || isCatalogAbortError(err)) throw err;
+    // No backend reachable (demo / static hosting): serve the bundled sample
+    // catalogue so the marketplace never renders a dead end.
+    return MOCK_APIS;
+  }
 }

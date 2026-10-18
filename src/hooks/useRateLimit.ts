@@ -30,7 +30,7 @@ export function useRateLimit() {
     null,
   );
   const [timeUntilReset, setTimeUntilReset] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Update rate-limit state from a fetch Response.

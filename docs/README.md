@@ -6,6 +6,7 @@ Welcome to the Callora Frontend documentation directory. This index groups all a
 
 ## Table of Contents
 
+- [Deployment](./Deployment.md) and [Architecture](./Architecture.md)
 - [Core Design System & Theming](#core-design-system--theming)
 - [Components & UI Features](#components--ui-features)
 - [Accessibility & Motion](#accessibility--motion)

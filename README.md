@@ -1,13 +1,73 @@
 # Callora Frontend
 
-Web app for the Callora API marketplace: developer dashboard, API management, and billing views.
+[![CI](https://github.com/CalloraOrg/Callora-Frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/CalloraOrg/Callora-Frontend/actions/workflows/ci.yml)
 
-## Tech stack
+> ## Live demo: **https://callora-frontend-zeta.vercel.app**
+>
+> Runs entirely in the browser with bundled sample data, no backend or wallet needed.
+> Good starting points: [/marketplace](https://callora-frontend-zeta.vercel.app/marketplace) ·
+> [/dashboard](https://callora-frontend-zeta.vercel.app/dashboard) ·
+> [/documentation](https://callora-frontend-zeta.vercel.app/documentation)
 
-- **React 18** + **TypeScript**
-- **Vite** for build and dev server
-- **React Router v6** for client-side routing
-- Minimal UI (no component library); ready to extend
+Callora is a pay-per-call API marketplace on Stellar. API consumers fund a USDC vault and are billed per request; publishers list APIs with per-request pricing and earn USDC. This repository is the web app: landing page, dashboard, marketplace, API detail pages, publishing, usage analytics and billing.
+
+## Quick start
+
+```bash
+git clone https://github.com/CalloraOrg/Callora-Frontend.git
+cd Callora-Frontend
+npm install
+npm run dev        # http://localhost:5173
+```
+
+Node.js 18+ (CI uses 20). No `.env` is required: if the backend is unreachable the app falls back to bundled mock data, so every page renders.
+
+## Environment variables
+
+Copy `.env.example` to `.env.local`. All variables are optional.
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_BASE_URL` | Absolute API origin. Empty (default) uses relative `/api` calls, proxied in dev |
+| `VITE_DEV_API_PROXY_TARGET` | Dev-server proxy target for `/api` (default `http://localhost:3000`) |
+| `VITE_STELLAR_NETWORK` | `testnet` (default), `mainnet` or `futurenet` |
+| `VITE_STELLAR_RPC_URL` | Soroban RPC endpoint override |
+| `VITE_STELLAR_VAULT_CONTRACT_ID` | Vault contract that receives USDC deposits (needed for real deposits) |
+| `VITE_ENABLE_DEMO_OUTCOME` | Dev only: show the deposit demo-outcome toggle |
+
+Details in [docs/Configuration.md](docs/Configuration.md).
+
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Dev server on port 5173 |
+| `npm run build` | Type-check and production build to `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run typecheck` | `tsc --noEmit` on the app sources |
+| `npm test` | Vitest in watch mode (`npx vitest run` for one pass) |
+| `npm run test:coverage` | Single pass with coverage |
+
+## Architecture
+
+- **Stack:** React 18, TypeScript, Vite, React Router 6, Stellar SDK + Freighter for wallet deposits.
+- **Routing:** `src/main.tsx` calls `renderRoute` (`src/renderRoute.tsx`), which renders heavy pages (`/marketplace`, `/publish`, `/details/:id`) inside a shared `StandaloneShell` and everything else inside `App.tsx` (React Router). See [Routes](#routes).
+- **Data:** `src/api/*` talks to the backend. When a request fails the app degrades to `src/data/mockApis.ts` (marketplace, details) or in-component sample data (usage, my APIs, billing history), so there are no dead screens on static hosting.
+- **State:** small stores in `src/state/` plus React context (theme, account, collections, toasts).
+- **Styling:** plain CSS: tokens in `src/styles/tokens.css`, global styles in `src/index.css`. Light/dark/system themes and high-contrast support. See [docs/UI-Design-System.md](docs/UI-Design-System.md).
+- **More:** [docs/README.md](docs/README.md) indexes every design note; [docs/Deployment.md](docs/Deployment.md) covers Vercel.
+
+## Deployment
+
+The app is a static Vite SPA deployed on Vercel. `vercel.json` rewrites all non-asset, non-`/api` paths to `index.html` so deep links and refreshes work. CI (`.github/workflows/ci.yml`) type-checks, builds and runs the tests on every push and pull request. See [docs/Deployment.md](docs/Deployment.md).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Before opening a PR run `npm run typecheck && npm run build && npx vitest run`.
+
+---
+
+## Feature notes and reference
 
 ## What's included
 
@@ -180,17 +240,7 @@ by removing interactive controls and making content fully visible. (Closes #708)
 **Plan Badge empty state (WCAG 2.1 AA, Issue #529):** The `EmptyState` `"plan-badge"` variant illustration is `aria-hidden`; meaning is carried exclusively by the heading and paragraph text (WCAG 1.1.1). Accent colour is a subordinate decorative detail — the state is never communicated by colour alone (WCAG 1.4.1). Both CTA buttons carry explicit accessible names via `aria-label`. All colours reference design tokens so contrast is maintained in both light and dark themes.
 
 **QuotaBanner empty state (WCAG 2.1 AA, Issue #702 / b#025):** When `showEmptyState` and `onSetupQuota` are set, `QuotaBanner` renders `EmptyState` `variant="quota-banner"` (gauge + bars illustration). The illustration is `aria-hidden`; the section is labelled via `aria-labelledby` → `headingId="quota-banner-empty-heading"`. The "Set up quota" CTA guides configuration. See [docs/QuotaBanner-EmptyState.md](docs/QuotaBanner-EmptyState.md).
-## Scripts
-
-| Command                | Description                                    |
-| ---------------------- | ---------------------------------------------- |
-| `npm run dev`          | Start dev server (port 5173)                   |
-| `npm run build`        | TypeScript check + production build            |
-| `npm run preview`      | Serve production build locally                 |
-| `npm test`             | Run the Vitest suite in watch mode             |
-| `npm run test:coverage`| Run the suite once and write a coverage report |
-
-### Running tests
+## Running tests
 
 Vitest discovers `src/**/*.test.{ts,tsx}`. Commands for the common cases:
 
@@ -220,7 +270,7 @@ Most pages are registered in `src/App.tsx`: the `APP_ROUTES` map and the `<Route
 | `/onboarding` | Guided multi-step tour for new users | `App.tsx` | |
 | `/dashboard` | Developer dashboard | `App.tsx` | |
 | `/marketplace` | API marketplace | `main.tsx`, `App.tsx` | `main.tsx` serves full page loads |
-| `/details/:id` | API detail page: overview, documentation, pricing, examples, reviews and embed tabs | `main.tsx` | `App.tsx` has no route for it; links push the URL and dispatch `popstate` |
+| `/details/:id` | API detail page: overview, documentation, pricing, examples, reviews and embed tabs | `renderRoute.tsx` | Has its own `<Route>` inside the standalone shell; links push the URL and dispatch `popstate` |
 | `/publish` | Publish a new API listing | `main.tsx`, `App.tsx` | `main.tsx` serves full page loads |
 | `/apis/my-apis` | Published APIs management | `App.tsx` | |
 | `/apis/plan-badge` | Plan-tier badge assignment and empty state | `App.tsx` | |
@@ -228,7 +278,7 @@ Most pages are registered in `src/App.tsx`: the `APP_ROUTES` map and the `<Route
 | `/billing` | USDC deposit and settlements | `App.tsx` | |
 | `/billing/history` | Paginated history of past USDC billing transactions | `App.tsx` | |
 | `/webhooks/deliveries` | Webhook delivery log | `App.tsx` | |
-| `/documentation` | Documentation landing page | `App.tsx` | Placeholder copy |
+| `/documentation` | In-app documentation (guides for consumers and publishers) | `App.tsx` | |
 | `/status` | System status | `App.tsx` | Placeholder copy |
 | `/latency-chart` | API latency chart with min, average and P95 | `main.tsx` | Not linked from the app yet |
 | `/theme-playground` | Live theme token playground for designers | `App.tsx` | Internal tool |
@@ -236,7 +286,7 @@ Most pages are registered in `src/App.tsx`: the `APP_ROUTES` map and the `<Route
 | `/a11y-audit` | Accessibility audit board | `App.tsx` | Internal tool |
 | `/500` | Server error page | `App.tsx` | Demo only |
 | `/rate-limit` | Rate-limit configuration card | `App.tsx` | Demo only |
-| `/marketplace/grantfox-wave-compute/sla` | GrantFox Wave Compute API SLA details (FWC26) | `main.tsx` | Not wired up yet: it is in `APP_ROUTES`, but no `<Route>` renders `SlaCard`, so a page load here shows the marketplace |
+| `/marketplace/grantfox-wave-compute/sla` | GrantFox Wave Compute API SLA details (FWC26) | `App.tsx` | |
 | `*` | 404 not found | `App.tsx` | Unmatched paths that reach `App.tsx` |
 
 When you add a route (an `APP_ROUTES` entry, a `<Route>` in `src/App.tsx` or a path check in `src/main.tsx`), add a row here. `src/readme-routes.test.ts` fails when a route in the code is missing from this table or a row names a path the code doesn't serve.

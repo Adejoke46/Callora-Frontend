@@ -56,7 +56,7 @@ export function getOnboardingTourProgress(): OnboardingTourProgress {
       return { ...DEFAULT_ONBOARDING_TOUR_PROGRESS };
     }
 
-    const parsed = JSON.parse(stored) as partial<OnboardingTourProgress> | null;
+    const parsed = JSON.parse(stored) as Partial<OnboardingTourProgress> | null;
     if (parsed === null || typeof parsed !== "object") {
       return { ...DEFAULT_ONBOARDING_TOUR_PROGRESS };
     }

@@ -7725,3 +7725,48 @@ code,
     gap: var(--mkt-space-xl);
   }
 }
+
+/* ---- Standalone shell (marketplace / publish / details) ---- */
+.standalone-topbar { margin: 0 auto; max-width: 1400px; padding: 14px 24px; align-items: center; }
+.standalone-brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; color: inherit; text-decoration: none; }
+.standalone-logo { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, #4f86ff, #2dd4a7); color: #fff; font-weight: 800; }
+.standalone-main { max-width: 1400px; margin: 0 auto; padding: 8px 24px 64px; position: relative; z-index: 1; }
+.standalone-topbar .nav { flex-wrap: wrap; }
+@media (max-width: 720px) { .standalone-topbar, .standalone-main { padding-left: 14px; padding-right: 14px; } }
+
+/* ---- Token aliases for components that reference legacy names ---- */
+:root {
+  --text-main: var(--text);
+  --text-muted: var(--muted);
+  --text-secondary: var(--muted);
+  --border: var(--line);
+  --border-subtle: var(--line);
+  --bg-highlight: var(--surface-soft);
+  --bg-main: var(--page-bg);
+  --card-bg: var(--surface);
+  --color-surface: var(--surface);
+  --theme-surface: var(--surface);
+  --theme-accent: var(--accent);
+  --theme-primary: var(--accent);
+  --color-divider: var(--line);
+  --line-weak: var(--line-soft);
+  --border-radius: 12px;
+  --spacing-lg: 24px;
+  --spacing-md: 16px;
+  --spacing-sm: 8px;
+  --spacing-12: 12px;
+  --spacing-24: 24px;
+  --tooltip-bg: #0f172a;
+  --tooltip-fg: #f8fafc;
+}
+.api-marketplace-card { position: relative; }
+.recently-active-rail button { background: var(--surface-soft) !important; }
+:root { --mkt-grid-min: 300px; }
+.api-marketplace-card .api-marketplace-card-header { padding-top: 26px; }
+
+/* ---- Documentation page ---- */
+.docs-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); margin-top: 16px; }
+.docs-card { padding: 22px; border-radius: var(--radius-lg); }
+.docs-card h2 { margin: 0 0 8px; font-size: 1.15rem; }
+.docs-card p { color: var(--muted); line-height: 1.6; margin: 0 0 12px; }
+.docs-links { display: flex; flex-wrap: wrap; gap: 8px; }

@@ -18,6 +18,7 @@ export type APIItem = {
   description: string;
   pricePerRequest: number;
   pricePerCall?: number;
+  pricing?: number;
   avgLatencyMs?: number;
   uptimePercent?: number;
   rating?: number;

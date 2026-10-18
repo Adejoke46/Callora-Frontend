@@ -10,7 +10,7 @@
  * render). `main.tsx` stays the only entry point that touches the DOM on load.
  */
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
 import { AccountProvider } from "./hooks/useAccountContext";
 import RouteProgressBar from "./components/RouteProgressBar";
@@ -21,6 +21,7 @@ import { CollectionsProvider } from "./state/collectionsStore";
 import MarketplacePageSkeleton from "./pages/MarketplacePage.skeleton";
 import ApiDetailPageSkeleton from "./pages/ApiDetailPage.skeleton";
 import LatencyChart from "./pages/LatencyChart";
+import StandaloneShell from "./components/StandaloneShell";
 
 /**
  * The slice of a React 18 root that routing needs. Keeping it structural lets
@@ -61,33 +62,33 @@ export async function renderRoute(
   if (pathname.startsWith("/publish")) {
     const mod = await import("./pages/PublishApi");
     const PublishApi = mod.default;
-    root.render(wrap(<PublishApi />));
+    root.render(wrap(<StandaloneShell><PublishApi /></StandaloneShell>));
     return;
   }
 
-  if (pathname.startsWith("/marketplace")) {
+  if (pathname.startsWith("/marketplace") && !pathname.endsWith("/sla")) {
     startRouteLoading();
-    root.render(wrap(<MarketplacePageSkeleton />));
+    root.render(wrap(<StandaloneShell><MarketplacePageSkeleton /></StandaloneShell>));
     const mod = await import("./pages/MarketplacePage");
     const MarketplacePage = mod.default;
-    root.render(wrap(<MarketplacePage />));
+    root.render(wrap(<StandaloneShell><MarketplacePage /></StandaloneShell>));
     stopRouteLoading();
     return;
   }
 
   if (pathname.startsWith("/details/")) {
     startRouteLoading();
-    root.render(wrap(<ApiDetailPageSkeleton />));
+    root.render(wrap(<StandaloneShell><ApiDetailPageSkeleton /></StandaloneShell>));
     const mod = await import("./pages/ApiDetailPage");
     const ApiDetailPage = mod.default;
     root.render(
       wrap(
-        <ApiDetailPage
+<StandaloneShell><Routes><Route path="/details/:id" element={<ApiDetailPage
           onBack={() => {
             history.pushState({}, "", "/marketplace");
             void renderRoute(root, "/marketplace");
           }}
-        />
+        />} /></Routes></StandaloneShell>
       )
     );
     stopRouteLoading();

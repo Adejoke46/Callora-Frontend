@@ -25,6 +25,8 @@ const ApiUsage = lazy(() => import("./pages/ApiUsage"));
 const MyApis = lazy(() => import("./pages/MyApis"));
 const PlanBadgePage = lazy(() => import("./pages/PlanBadge"));
 const ThemePlayground = lazy(() => import("./pages/ThemePlayground"));
+const SlaCard = lazy(() => import("./pages/SlaCard"));
+const Documentation = lazy(() => import("./pages/Documentation"));
 const DesignSystemDocs = lazy(() => import("./pages/DesignSystemDocs"));
 const A11yAudit = lazy(() => import("./pages/A11yAudit"));
 const RateLimitCard = lazy(() => import("./pages/RateLimitCard"));
@@ -712,7 +714,7 @@ function App() {
                         <p className="eyebrow">Deposit USDC to Vault</p>
                         <h1>Review every number before you approve.</h1>
                       </div>
-                      <button className="primary-button no-print" onClick={openDeposit}>
+                      <button className="primary-button no-print" onClick={() => openDeposit()}>
                         Open deposit modal
                       </button>
                     </div>
@@ -772,18 +774,8 @@ function App() {
               }
             />
 
-            <Route
-              path={APP_ROUTES.documentation}
-              element={
-                <section className="surface placeholder-card">
-                  <p className="eyebrow">Documentation</p>
-                  <h1>Everything you need to ship with the Callora vault.</h1>
-                  <p>
-                    Implementation guides, transaction lifecycle notes, and troubleshooting references live here so teams can move from prototype to production quickly.
-                  </p>
-                </section>
-              }
-            />
+            <Route path={APP_ROUTES.documentation} element={<Documentation />} />
+            <Route path={APP_ROUTES.slaCard} element={<SlaCard />} />
 
             <Route
               path={APP_ROUTES.status}

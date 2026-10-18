@@ -129,7 +129,7 @@ export default function RequestHistoryPanel({
         role="complementary"
         aria-label="Request history"
         aria-hidden={!isOpen}
-        inert={!isOpen}
+        {...(!isOpen ? ({ inert: "" } as Record<string, string>) : {})}
       >
         <div className="history-panel__header">
           <h2 className="history-panel__title">Request History</h2>

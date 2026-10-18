@@ -124,7 +124,7 @@ export default function LowBalanceBanner({ balance, openDeposit }: LowBalanceBan
             onClick={() => handleQuickTopUp(amount)}
             aria-label={`Quick top up with ${amount} USDC to raise your buffer balance`}
           >
-            <BoltIcon size={14} aria-hidden="true" />
+            <BoltIcon size={16} aria-hidden="true" />
             +${amount}
           </button>
         ))}

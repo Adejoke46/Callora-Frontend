@@ -43,7 +43,7 @@ type ApiEndpoint = {
   requestBodySchema?: JsonSchema;
 };
 
-type CallRecord = {
+export type CallRecord = {
   id: string;
   timestamp: Date;
   endpoint: string;
@@ -384,7 +384,7 @@ export default function ApiUsage() {
     retryLastFailedExport,
     recoverDownload,
     resetExport,
-  } = useExportHistory(callHistory, { accountId: currentAccountId });
+  } = useExportHistory(callHistory, { accountId: currentAccountId ?? undefined });
 
   const [selectedRange, setSelectedRange] = useState<DateRange>({
     preset: "24h",

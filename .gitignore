@@ -12,3 +12,4 @@ coverage
 # Test output
 test-output*.txt
 coverage/
+.vercel

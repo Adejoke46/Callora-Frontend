@@ -1,6 +1,12 @@
 import ReactDOM from "react-dom/client";
 import { renderRoute } from "./renderRoute";
+import "./styles/tokens.css";
 import "./index.css";
+import "./styles/typography.css";
+import "./styles/patterns.css";
+import "./styles/focus.css";
+import "./styles/contrast.css";
+import "./styles/code.css";
 import "./styles/print.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
