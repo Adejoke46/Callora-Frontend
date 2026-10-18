@@ -758,7 +758,7 @@ export default function ApiDetailPage({ onBack }: Props) {
                 Back
               </button>
               <div className="api-detail-brand">
-                <div className="api-detail-logo">W</div>
+                <div className="api-detail-logo" aria-hidden="true">{api.name.charAt(0).toUpperCase()}</div>
                 <div className="api-detail-title">
                   <h1>{api.name}</h1>
                   <div className="api-detail-meta">

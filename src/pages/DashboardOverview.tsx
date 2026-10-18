@@ -283,7 +283,7 @@ export function DashboardOverview({
 
           {/* Empty state */}
           {activityStatus === 'success' && activity.length === 0 && (
-            <EmptyState message="No activity yet. Deposit USDC to get started!" />
+            <EmptyState title="No recent activity" message="No activity yet. Deposit USDC to get started!" />
           )}
 
           {/* Activity list */}

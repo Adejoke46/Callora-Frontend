@@ -2,12 +2,13 @@
 
 [![CI](https://github.com/CalloraOrg/Callora-Frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/CalloraOrg/Callora-Frontend/actions/workflows/ci.yml)
 
-> ## Live demo: **https://callora-frontend-zeta.vercel.app**
+> ## Live demo: **https://callora-frontend-six.vercel.app**
 >
 > Runs entirely in the browser with bundled sample data, no backend or wallet needed.
-> Good starting points: [/marketplace](https://callora-frontend-zeta.vercel.app/marketplace) ·
-> [/dashboard](https://callora-frontend-zeta.vercel.app/dashboard) ·
-> [/documentation](https://callora-frontend-zeta.vercel.app/documentation)
+> Contracts are deployed on Stellar testnet: [vault](https://stellar.expert/explorer/testnet/contract/CBJZLUKQBWDMZPKNJAVONZ7GCCWADSETRXWOPN5Z3XWAUNI4F2R7XDYQ) · [settlement](https://stellar.expert/explorer/testnet/contract/CB4BUGCX5LFS5KYWAO2J4ZQTALOQSGXFFAOVKKGAS32OFZLU7O7YYGHS) · [revenue pool](https://stellar.expert/explorer/testnet/contract/CC5KINWRSLKSSQG4ZOTP3EZIOUVC6ER7HL5GZALYY4LVE6ZIMX4PMCSE) (shown read-only in the app footer and on /documentation).
+> Good starting points: [/marketplace](https://callora-frontend-six.vercel.app/marketplace) ·
+> [/dashboard](https://callora-frontend-six.vercel.app/dashboard) ·
+> [/documentation](https://callora-frontend-six.vercel.app/documentation)
 
 Callora is a pay-per-call API marketplace on Stellar. API consumers fund a USDC vault and are billed per request; publishers list APIs with per-request pricing and earn USDC. This repository is the web app: landing page, dashboard, marketplace, API detail pages, publishing, usage analytics and billing.
 

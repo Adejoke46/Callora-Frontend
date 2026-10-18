@@ -170,6 +170,23 @@ export const STELLAR_VAULT_CONTRACT_ID = String(
 
 export const STELLAR_USDC_DECIMALS = 7;
 
+/**
+ * Reference deployment of the Callora contracts on Stellar testnet. Shown in
+ * the footer and on the documentation page as read-only explorer links; it does
+ * not enable deposits (that still requires `VITE_STELLAR_VAULT_CONTRACT_ID`).
+ */
+export const TESTNET_DEPLOYMENT = {
+  network: "testnet",
+  vault: "CBJZLUKQBWDMZPKNJAVONZ7GCCWADSETRXWOPN5Z3XWAUNI4F2R7XDYQ",
+  settlement: "CB4BUGCX5LFS5KYWAO2J4ZQTALOQSGXFFAOVKKGAS32OFZLU7O7YYGHS",
+  revenuePool: "CC5KINWRSLKSSQG4ZOTP3EZIOUVC6ER7HL5GZALYY4LVE6ZIMX4PMCSE",
+} as const;
+
+/** stellar.expert testnet page for a contract ID. */
+export function testnetContractUrl(contractId: string): string {
+  return `https://stellar.expert/explorer/testnet/contract/${contractId}`;
+}
+
 /** Shows the deposit demo-outcome toggle (dev server + explicit opt-in only). */
 export const ENABLE_DEMO_OUTCOME =
   import.meta.env.DEV &&

@@ -201,6 +201,6 @@ describe('A11yAudit — manifest upkeep docs link (#1158)', () => {
     render(<A11yAudit />);
 
     const link = screen.getByRole('link', { name: /manifest upkeep guide/i });
-    expect(link).toHaveAttribute('href', 'docs/a11y-manifest.md');
+    expect(link).toHaveAttribute('href', 'https://github.com/CalloraOrg/Callora-Frontend/blob/main/docs/a11y-manifest.md');
   });
 });

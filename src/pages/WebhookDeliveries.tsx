@@ -51,7 +51,7 @@ function DeliveryDetailPanel({ delivery }: { delivery: WebhookDelivery }) {
     <tr>
       <td
         colSpan={7}
-        style={{ padding: '12px 16px', background: '#f9f9f9', borderBottom: '1px solid #ddd' }}
+        className="webhook-detail-cell"
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {delivery.responseStatus !== undefined && (
@@ -60,7 +60,7 @@ function DeliveryDetailPanel({ delivery }: { delivery: WebhookDelivery }) {
               <span
                 style={{
                   fontFamily: 'monospace',
-                  color: delivery.responseStatus >= 400 ? '#c0392b' : '#27ae60',
+                  color: delivery.responseStatus >= 400 ? 'var(--danger)' : 'var(--success)',
                 }}
               >
                 {delivery.responseStatus}
@@ -93,7 +93,8 @@ interface WebhookDeliveriesProps {
 }
 
 export default function WebhookDeliveries({ fetcher }: WebhookDeliveriesProps = {}) {
-  const accountId = useAccountId();
+  // Without a connected account, show the bundled sample deliveries.
+  const accountId = useAccountId() ?? 'demo-account';
   const {
     deliveries,
     totalCount,
@@ -140,16 +141,16 @@ export default function WebhookDeliveries({ fetcher }: WebhookDeliveriesProps = 
   };
 
   return (
-    <div className="webhook-deliveries" style={{ padding: '24px' }}>
+    <div className="webhook-deliveries">
+      <p className="eyebrow">Developer tools</p>
       <h1>Webhook Deliveries</h1>
+      <p className="webhook-deliveries-intro">
+        Every event Callora sends to your endpoints, with the request and response bodies. Failed deliveries can be retried.
+      </p>
 
-      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
-        <button onClick={refresh}>Refresh</button>
-      </div>
-
-      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
-        <label>
-          Filter Status:
+      <div className="webhook-deliveries-toolbar">
+        <label className="webhook-deliveries-filter">
+          Status
           <select
             value={filter.status}
             onChange={(e) => setFilter((f) => ({ ...f, status: e.target.value as any, page: 1 }))}
@@ -160,6 +161,7 @@ export default function WebhookDeliveries({ fetcher }: WebhookDeliveriesProps = 
             <option value="pending">Pending</option>
           </select>
         </label>
+        <button type="button" className="secondary-button" onClick={refresh}>Refresh</button>
       </div>
 
       <Pagination
@@ -179,7 +181,7 @@ export default function WebhookDeliveries({ fetcher }: WebhookDeliveriesProps = 
         <div role="alert" className="webhook-deliveries-error">
           <strong>Error:</strong> {error}
           <br />
-          <button onClick={refresh}>Retry Load</button>
+          <button type="button" className="secondary-button" onClick={refresh}>Retry Load</button>
         </div>
       )}
 
@@ -195,18 +197,19 @@ export default function WebhookDeliveries({ fetcher }: WebhookDeliveriesProps = 
           )}
 
           {deliveries.length === 0 ? (
-            <div className="empty-state">No deliveries found.</div>
+            <div className="empty-state surface webhook-deliveries-empty">No deliveries match this filter.</div>
           ) : (
-            <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+            <div className="webhook-deliveries-table-wrap surface">
+            <table className="webhook-deliveries-table">
               <thead>
                 <tr>
-                  <th style={{ borderBottom: '1px solid #ccc', padding: '8px' }} aria-label="Expand row" />
-                  <th style={{ borderBottom: '1px solid #ccc', padding: '8px' }}>ID</th>
-                  <th style={{ borderBottom: '1px solid #ccc', padding: '8px' }}>URL</th>
-                  <th style={{ borderBottom: '1px solid #ccc', padding: '8px' }}>Status</th>
-                  <th style={{ borderBottom: '1px solid #ccc', padding: '8px' }}>Attempts</th>
-                  <th style={{ borderBottom: '1px solid #ccc', padding: '8px' }}>Timestamp</th>
-                  <th style={{ borderBottom: '1px solid #ccc', padding: '8px' }}>Actions</th>
+                  <th aria-label="Expand row" />
+                  <th>ID</th>
+                  <th>URL</th>
+                  <th>Status</th>
+                  <th>Attempts</th>
+                  <th>Timestamp</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -215,33 +218,28 @@ export default function WebhookDeliveries({ fetcher }: WebhookDeliveriesProps = 
                   return (
                     <Fragment key={d.id}>
                       <tr>
-                        <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>
+                        <td>
                           <button
                             aria-expanded={isExpanded}
                             aria-label={isExpanded ? `Collapse details for ${d.id}` : `Expand details for ${d.id}`}
                             onClick={() => toggleExpanded(d.id)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              cursor: 'pointer',
-                              padding: '2px 4px',
-                              fontSize: '12px',
-                              lineHeight: 1,
-                            }}
+                            className="webhook-expand-button"
                           >
                             {isExpanded ? '▲' : '▼'}
                           </button>
                         </td>
-                        <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>{d.id}</td>
-                        <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>{d.url}</td>
-                        <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>{d.status}</td>
-                        <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>{d.attempts}</td>
-                        <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>
+                        <td>{d.id}</td>
+                        <td>{d.url}</td>
+                        <td><span className={`webhook-status webhook-status--${d.status}`}>{d.status}</span></td>
+                        <td>{d.attempts}</td>
+                        <td>
                           {formatTimestamp(d.createdAt)}
                         </td>
-                        <td style={{ borderBottom: '1px solid #eee', padding: '8px' }}>
+                        <td>
                           {d.status === 'failed' && (
                             <button
+                              type="button"
+                              className="ghost-button"
                               onClick={() => handleRetry(d.id)}
                               disabled={retryingId === d.id}
                             >
@@ -256,6 +254,7 @@ export default function WebhookDeliveries({ fetcher }: WebhookDeliveriesProps = 
                 })}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

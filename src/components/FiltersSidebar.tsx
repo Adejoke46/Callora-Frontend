@@ -17,10 +17,12 @@ type PopularityValue = (typeof POPULARITY_OPTIONS)[number]["value"];
 
 export const ALL_CATEGORIES = [
   "Data & Analytics",
+  "Finance",
   "Payment Processing",
   "Communication",
-  "AI/ML",
-  "Other",
+  "AI & ML",
+  "Security",
+  "Utilities",
 ];
 
 export const STATUS_OPTIONS = [

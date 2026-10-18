@@ -265,11 +265,11 @@ export default function OnboardingTour({
   const pageStyles = `
     /* ── OnboardingTour page layout ───────────────────────────────── */
     .onboarding-tour {
-      min-height: 100vh;
+      min-height: calc(100vh - 220px);
       display: grid;
       place-items: center;
       padding: 24px 16px 48px;
-      background: var(--page-bg);
+      background: transparent;
     }
 
     .onboarding-tour__card {

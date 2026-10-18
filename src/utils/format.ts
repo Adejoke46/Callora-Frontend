@@ -57,7 +57,7 @@ export function formatUsdShortcut(value: number, locale?: string): string {
 export function formatPrice(value: number, locale?: string): string {
   return new Intl.NumberFormat(resolveLocale(locale), {
     minimumFractionDigits: 3,
-    maximumFractionDigits: 3,
+    maximumFractionDigits: 4,
   }).format(value);
 }
 

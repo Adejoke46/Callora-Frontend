@@ -7,8 +7,20 @@ import useCopy from "../hooks/useCopy";
 import useDocumentTitle from "../hooks/useDocumentTitle";
 import {
   evaluateContrastPair,
+  getLuminance,
+  parseColor,
   type ContrastCheckResult,
 } from "../utils/contrast";
+
+/**
+ * Preview panels are painted with the edited surface colour, so they take the
+ * matching app theme (as a `data-theme` island) rather than the page theme;
+ * otherwise light-mode text would sit on the default dark surface.
+ */
+function surfaceScheme(surface: string): "light" | "dark" {
+  const rgba = parseColor(surface);
+  return rgba && getLuminance([rgba[0], rgba[1], rgba[2]]) > 0.4 ? "light" : "dark";
+}
 
 /** How long (ms) the copy/download status stays visible before clearing. */
 const STATUS_DURATION_MS = 2_000;
@@ -227,6 +239,7 @@ export default function ThemePlayground() {
       <div className="theme-playground__layout">
         <div
           className="theme-playground__editor"
+          data-theme={surfaceScheme(tokens.surface)}
           aria-label="Theme token editor"
         >
           <TokenEditor
@@ -252,14 +265,14 @@ export default function ThemePlayground() {
         </div>
 
         <div className="theme-playground__preview" aria-label="Theme preview">
-          <div className="theme-playground__card">
+          <div className="theme-playground__card" data-theme={surfaceScheme(tokens.surface)}>
             <div className="theme-playground__card-header">
               <span className="theme-playground__pill">Preview</span>
               <span className="theme-playground__pill theme-playground__pill--muted">
                 Live
               </span>
             </div>
-            <h2>GrantFox campaign concept</h2>
+            <h2>Marketplace card preview</h2>
             <p>
               Use this sandbox to tune a new visual direction while preserving
               accessible contrast.
@@ -298,7 +311,7 @@ export default function ThemePlayground() {
             </div>
           </div>
 
-          <div className="theme-playground__card theme-playground__card--compact">
+          <div className="theme-playground__card theme-playground__card--compact" data-theme={surfaceScheme(tokens.surface)}>
             <h3>Suggested usage</h3>
             <ul>
               <li>Primary color for core buttons</li>

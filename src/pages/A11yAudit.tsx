@@ -2,6 +2,9 @@ import { useState, useMemo } from 'react';
 import manifest from '../data/a11y-manifest.json';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 
+/** Docs are Markdown in the repo, not app routes, so link to them on GitHub. */
+const DOCS_BASE = "https://github.com/CalloraOrg/Callora-Frontend/blob/main/docs";
+
 type Status = 'all' | 'audited' | 'needs-work' | 'n/a';
 
 export default function A11yAudit() {
@@ -27,7 +30,7 @@ export default function A11yAudit() {
         <h1>Accessibility Audit Board</h1>
         <p className="page-subtitle">
           Track the WCAG 2.1 AA compliance status of all design system components.{' '}
-          <a href="docs/a11y-manifest.md" className="component-link">
+          <a href={`${DOCS_BASE}/a11y-manifest.md`} target="_blank" rel="noopener noreferrer" className="component-link">
             Manifest upkeep guide
           </a>
         </p>
@@ -68,7 +71,7 @@ export default function A11yAudit() {
             <div className="a11y-card-header">
               <h3>
                 {'docs' in comp && (comp as any).docs ? (
-                  <a href={`docs/${(comp as any).docs}`} className="component-link">
+                  <a href={`${DOCS_BASE}/${(comp as any).docs}`} target="_blank" rel="noopener noreferrer" className="component-link">
                     {comp.name}
                   </a>
                 ) : (

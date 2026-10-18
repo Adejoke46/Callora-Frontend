@@ -45,7 +45,7 @@ export const fetchDeliveries: WebhookDeliveriesFetcher = async (
       const data: WebhookDelivery[] = [
         {
           id: `dlv_1_${filter.page}`,
-          url: "https://example.com/webhook",
+          url: "https://hooks.acme-labs.dev/callora/events",
           status: "delivered",
           attempts: 1,
           lastAttemptAt: new Date().toISOString(),
@@ -56,7 +56,7 @@ export const fetchDeliveries: WebhookDeliveriesFetcher = async (
         },
         {
           id: `dlv_2_${filter.page}`,
-          url: "https://example.com/webhook",
+          url: "https://hooks.acme-labs.dev/callora/events",
           status: "failed",
           attempts: 3,
           lastAttemptAt: new Date().toISOString(),

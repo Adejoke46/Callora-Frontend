@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ThemeToggle } from "../ThemeToggle";
+import { TESTNET_DEPLOYMENT, testnetContractUrl } from "../config/constants";
 
 const LINKS: Array<{ href: string; label: string }> = [
   { href: "/dashboard", label: "Dashboard" },
@@ -42,6 +43,12 @@ export default function StandaloneShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <div className="standalone-main">{children}</div>
+      <footer className="standalone-footer no-print" role="contentinfo">
+        <span>Callora · pay-per-call APIs settled in USDC</span>
+        <a href={testnetContractUrl(TESTNET_DEPLOYMENT.vault)} target="_blank" rel="noopener noreferrer" className="footer-chain-link">
+          Deployed on Stellar testnet
+        </a>
+      </footer>
     </div>
   );
 }

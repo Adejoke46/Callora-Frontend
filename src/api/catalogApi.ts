@@ -21,7 +21,7 @@
  * {@link isCatalogAbortError}) is the idiomatic way to say that.
  */
 
-import { API_BASE_URL } from "../config/constants";
+import { API_BASE, API_BASE_URL } from "../config/constants";
 import MOCK_APIS, { type APIItem } from "../data/mockApis";
 
 /** Path the marketplace catalogue is read from. */
@@ -176,7 +176,7 @@ export function createCatalogApi(
 }
 
 /** Shared catalogue API used by the app. */
-export const catalogApi: CatalogApi = createCatalogApi();
+export const catalogApi: CatalogApi = createCatalogApi({ baseUrl: API_BASE || API_BASE_URL });
 
 /**
  * Reads the marketplace catalogue.
@@ -186,6 +186,9 @@ export const catalogApi: CatalogApi = createCatalogApi();
  * loading / success / failure path of the page.
  */
 export async function fetchCatalog(signal?: AbortSignal): Promise<APIItem[]> {
+  // No backend configured (static demo deployment): use the bundled sample
+  // catalogue instead of firing a request that can only fail.
+  if (!API_BASE) return MOCK_APIS;
   try {
     return await catalogApi.fetchCatalog(signal);
   } catch (err) {

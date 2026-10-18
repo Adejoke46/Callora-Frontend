@@ -1,6 +1,6 @@
 # Deployment
 
-Production is a static build served by [Vercel](https://vercel.com). Live demo: https://callora-frontend-zeta.vercel.app
+Production is a static build served by [Vercel](https://vercel.com). Live demo: https://callora-frontend-six.vercel.app
 
 ## Build
 

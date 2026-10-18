@@ -76,7 +76,7 @@ export function InvoiceCard({
 
       <div className="invoice-card__meta">
         <span data-testid="invoice-card-due-date">{formattedDueDate}</span>
-        <span>GrantFox FWC26</span>
+        <span>Callora API usage</span>
       </div>
 
       <div className="invoice-card__body">

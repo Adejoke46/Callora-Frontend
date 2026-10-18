@@ -23,7 +23,8 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       proxy: {
-        '/api': {
+        // Only real API calls (`/api/...`); `/apis/*` and `/api-usage` are SPA routes.
+        '^/api/': {
           target: apiProxyTarget,
           changeOrigin: true,
         },

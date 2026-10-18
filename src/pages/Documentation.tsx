@@ -1,4 +1,11 @@
 import { Link } from "react-router-dom";
+import { TESTNET_DEPLOYMENT, testnetContractUrl } from "../config/constants";
+
+const CONTRACTS: Array<{ label: string; id: string }> = [
+  { label: "Vault", id: TESTNET_DEPLOYMENT.vault },
+  { label: "Settlement", id: TESTNET_DEPLOYMENT.settlement },
+  { label: "Revenue pool", id: TESTNET_DEPLOYMENT.revenuePool },
+];
 
 const SECTIONS: Array<{ title: string; body: string; links?: Array<{ to: string; label: string }> }> = [
   {
@@ -68,6 +75,20 @@ export default function Documentation() {
             )}
           </section>
         ))}
+        <section className="surface docs-card docs-contracts">
+          <h2>Deployed on Stellar testnet</h2>
+          <p>The Callora Soroban contracts are deployed on Stellar testnet. Open them on stellar.expert to inspect storage, events and invocations.</p>
+          <ul className="docs-contract-list">
+            {CONTRACTS.map((c) => (
+              <li key={c.id}>
+                <span className="docs-contract-label">{c.label}</span>
+                <a href={testnetContractUrl(c.id)} target="_blank" rel="noopener noreferrer" className="docs-contract-id">
+                  {c.id}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </div>
   );

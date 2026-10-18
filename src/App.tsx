@@ -7,7 +7,7 @@ import NotFound from "./components/NotFound";
 import { startRouteLoading, stopRouteLoading } from "./hooks/useRouteLoading";
 import { formatUsdc, formatUsdShortcut, normalizeUsdcAmountInput, USDC_DECIMALS } from "./utils/format";
 import { useNetworkFee } from "./components/DepositPreview";
-import { ENABLE_DEMO_OUTCOME, EXPLORER_BASE_URL, MIN_DEPOSIT, NETWORK_FEE, PRESET_AMOUNTS, EXTERNAL_LINKS } from "./config/constants";
+import { ENABLE_DEMO_OUTCOME, EXPLORER_BASE_URL, MIN_DEPOSIT, NETWORK_FEE, PRESET_AMOUNTS, EXTERNAL_LINKS, TESTNET_DEPLOYMENT, testnetContractUrl } from "./config/constants";
 import type { WalletServiceErrorCode } from "./services/walletService";
 import CompareDrawer from "./components/CompareDrawer";
 import CompareTray from "./components/CompareTray";
@@ -169,6 +169,15 @@ const APP_ROUTES = {
   onboarding: "/onboarding",
   endpointSummary: "/endpoints",
 } as const;
+
+const PRIMARY_NAV: Array<{ to: string; label: string }> = [
+  { to: APP_ROUTES.dashboard, label: "Dashboard" },
+  { to: APP_ROUTES.marketplace, label: "Marketplace" },
+  { to: APP_ROUTES.publish, label: "Publish" },
+  { to: APP_ROUTES.myApis, label: "My APIs" },
+  { to: APP_ROUTES.billing, label: "Billing" },
+  { to: APP_ROUTES.documentation, label: "Docs" },
+];
 
 function buildExplorerLink(hash: string) {
   return `${EXPLORER_BASE_URL}${hash}`;
@@ -614,65 +623,26 @@ function App() {
         <div className="ambient ambient-a" aria-hidden="true" />
         <div className="ambient ambient-b" aria-hidden="true" />
 
-        <header className="topbar no-print" role="banner">
-          <div>
-            <p className="eyebrow">Callora Vault</p>
-            <p className="brand">Secure USDC funding for premium API usage</p>
-          </div>
+        <header className="topbar standalone-topbar no-print" role="banner">
+          <a href="/" className="standalone-brand" aria-label="Callora home">
+            <span className="standalone-logo" aria-hidden="true">C</span>
+            Callora
+          </a>
 
           <div className="topbar-actions">
             <nav className="nav" aria-label="Primary navigation">
-              <NavLink 
-                to={APP_ROUTES.dashboard} 
-                className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}
-                onMouseEnter={() => prefetchRoute(APP_ROUTES.dashboard)}
-                onFocus={() => prefetchRoute(APP_ROUTES.dashboard)}
-              >
-                Dashboard
-              </NavLink>
-              <NavLink 
-                to={APP_ROUTES.marketplace} 
-                className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}
-                onMouseEnter={() => prefetchRoute(APP_ROUTES.marketplace)}
-                onFocus={() => prefetchRoute(APP_ROUTES.marketplace)}
-              >
-                Marketplace
-              </NavLink>
-              <NavLink 
-                to={APP_ROUTES.myApis} 
-                className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}
-                onMouseEnter={() => prefetchRoute(APP_ROUTES.myApis)}
-                onFocus={() => prefetchRoute(APP_ROUTES.myApis)}
-              >
-                My APIs
-              </NavLink>
-              <NavLink to={APP_ROUTES.billing} className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}>
-                Billing
-              </NavLink>
-              <NavLink 
-                to={APP_ROUTES.billingHistory} 
-                className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}
-                onMouseEnter={() => prefetchRoute(APP_ROUTES.billingHistory)}
-                onFocus={() => prefetchRoute(APP_ROUTES.billingHistory)}
-              >
-                Billing History
-              </NavLink>
-              <NavLink 
-                to={APP_ROUTES.themePlayground} 
-                className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}
-                onMouseEnter={() => prefetchRoute(APP_ROUTES.themePlayground)}
-                onFocus={() => prefetchRoute(APP_ROUTES.themePlayground)}
-              >
-                Theme Playground
-              </NavLink>
-              <NavLink 
-                to={APP_ROUTES.designSystem} 
-                className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}
-                onMouseEnter={() => prefetchRoute(APP_ROUTES.designSystem)}
-                onFocus={() => prefetchRoute(APP_ROUTES.designSystem)}
-              >
-                Design System
-              </NavLink>
+              {PRIMARY_NAV.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === APP_ROUTES.billing}
+                  className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}
+                  onMouseEnter={() => prefetchRoute(item.to)}
+                  onFocus={() => prefetchRoute(item.to)}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
             </nav>
             <AccountSwitcher />
             <ThemeToggle />
@@ -752,8 +722,38 @@ function App() {
                   </div>
 
                   <aside className="surface prototype-panel">
-                    <p className="eyebrow">Prototype state preview</p>
-                    <h2>Review both success and failure flows.</h2>
+                    <p className="eyebrow">Vault details</p>
+                    <h2>Where your USDC goes.</h2>
+                    <dl className="vault-facts">
+                      <div>
+                        <dt>Network</dt>
+                        <dd>Stellar testnet</dd>
+                      </div>
+                      <div>
+                        <dt>Vault contract</dt>
+                        <dd>
+                          <a href={testnetContractUrl(TESTNET_DEPLOYMENT.vault)} target="_blank" rel="noopener noreferrer">
+                            {TESTNET_DEPLOYMENT.vault.slice(0, 6)}…{TESTNET_DEPLOYMENT.vault.slice(-6)}
+                          </a>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Settlement contract</dt>
+                        <dd>
+                          <a href={testnetContractUrl(TESTNET_DEPLOYMENT.settlement)} target="_blank" rel="noopener noreferrer">
+                            {TESTNET_DEPLOYMENT.settlement.slice(0, 6)}…{TESTNET_DEPLOYMENT.settlement.slice(-6)}
+                          </a>
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Minimum deposit</dt>
+                        <dd>{MIN_DEPOSIT} USDC</dd>
+                      </div>
+                    </dl>
+                    <p className="helper-text">
+                      Every deposit and per-call debit is recorded on-chain. See past activity in{" "}
+                      <NavLink to={APP_ROUTES.billingHistory}>Billing History</NavLink>.
+                    </p>
                     {ENABLE_DEMO_OUTCOME && (
                       <>
                         <div className="outcome-toggle" role="radiogroup" aria-label="Demo outcome">
@@ -784,6 +784,14 @@ function App() {
                   <p className="eyebrow">Status</p>
                   <h1>System status updates in one place.</h1>
                   <p>All core services are operational. If you are still seeing issues, please contact support and include what action you were trying to complete.</p>
+                  <ul className="status-list" aria-label="Service status">
+                    {["Marketplace API", "Billing & vault deposits", "Usage metering", "Stellar testnet settlement", "Webhooks"].map((svc) => (
+                      <li key={svc}>
+                        <span>{svc}</span>
+                        <span className="status-ok">● Operational</span>
+                      </li>
+                    ))}
+                  </ul>
                 </section>
               }
             />
@@ -812,6 +820,11 @@ function App() {
           <div>
             <p className="eyebrow">Callora</p>
             <p className="footer-copy">Reliable USDC funding and API operations for modern product teams.</p>
+            <p className="footer-copy">
+              <a className="footer-chain-link" href={testnetContractUrl(TESTNET_DEPLOYMENT.vault)} target="_blank" rel="noopener noreferrer">
+                Deployed on Stellar testnet
+              </a>
+            </p>
           </div>
 
           <nav className="footer-nav" aria-label="Footer navigation">
@@ -829,6 +842,9 @@ function App() {
             </NavLink>
             <NavLink to={APP_ROUTES.themePlayground} className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}>
               Theme Playground
+            </NavLink>
+            <NavLink to={APP_ROUTES.designSystem} className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}>
+              Design System
             </NavLink>
             <NavLink to={APP_ROUTES.status} className={({ isActive }) => (isActive ? "link-nav active" : "link-nav")}>
               Status

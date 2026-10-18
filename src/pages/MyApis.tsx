@@ -130,6 +130,7 @@ function ProviderApiRow({ api }: { api: PublishedApiItem }) {
       <Link
         to={`/details/${api.id}`}
         data-testid={`api-row-${api.id}`}
+        className="my-apis-row"
         style={{
           display: "flex",
           alignItems: "center",
@@ -175,7 +176,7 @@ function ProviderApiRow({ api }: { api: PublishedApiItem }) {
         </div>
 
         {/* Name + provider */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="my-apis-row__name" style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
               fontWeight: 600,
@@ -375,6 +376,7 @@ export default function MyApis() {
             {/* Column header */}
             <div
               aria-hidden="true"
+              className="my-apis-header"
               style={{
                 display: "flex",
                 alignItems: "center",

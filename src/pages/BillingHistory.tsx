@@ -158,6 +158,14 @@ export const MOCK_TRANSACTIONS: BillingTransaction[] = [
 
 // ── Filter & sort helpers ─────────────────────────────────────────────────────
 
+
+/** Transaction-oriented wording (the badge defaults describe service health). */
+const TX_STATUS_LABELS: Record<TxStatus, string> = {
+  success: 'Confirmed',
+  pending: 'Pending',
+  error: 'Failed',
+  warning: 'Needs review',
+};
 const ALL_TYPES: TxType[] = ['Deposit', 'API Call', 'Refund', 'Settlement', 'Fee'];
 const ALL_STATUSES: TxStatus[] = ['success', 'pending', 'error', 'warning'];
 
@@ -312,7 +320,7 @@ export function BillingHistory() {
       {/* Page heading */}
       <header style={{ marginBottom: '20px' }}>
         <p className="eyebrow" style={{ marginBottom: '4px' }}>
-          GrantFox FWC26
+          Billing
         </p>
         <h1
           id="bh-page-title"
@@ -765,7 +773,7 @@ export function BillingHistory() {
 
                   {/* Status cell */}
                   <td style={{ padding: '10px 12px' }}>
-                    <StatusBadge status={tx.status} />
+                    <StatusBadge status={tx.status} label={TX_STATUS_LABELS[tx.status]} />
                   </td>
 
                   {/* Amount cell */}
