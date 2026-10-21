@@ -55,6 +55,7 @@ import {
   hasUsdcTrustline, addUsdcTrustline, getWalletAddress,
   isWalletAvailable,
   submitVaultDeposit,
+  checkDepositStatus,
 } from "./walletService";
 
 describe("walletService", () => {
@@ -353,5 +354,38 @@ describe("walletService", () => {
   it("reports a definitive failed deposit without requiring reconciliation", async () => {
     mocks.server.getTransaction.mockResolvedValueOnce({ status: "FAILED" });
     await expect(submitVaultDeposit("50")).rejects.toMatchObject({ code: "TRANSACTION_FAILED", requiresReconciliation: false });
+  });
+
+  describe("checkDepositStatus", () => {
+    it("returns SUCCESS when getTransaction reports SUCCESS", async () => {
+      mocks.server.getTransaction.mockResolvedValueOnce({ status: "SUCCESS" });
+      const status = await checkDepositStatus("test-hash");
+      expect(status).toBe("SUCCESS");
+      expect(mocks.server.getTransaction).toHaveBeenCalledWith("test-hash");
+    });
+
+    it("returns FAILED when getTransaction reports FAILED", async () => {
+      mocks.server.getTransaction.mockResolvedValueOnce({ status: "FAILED" });
+      const status = await checkDepositStatus("test-hash");
+      expect(status).toBe("FAILED");
+    });
+
+    it("returns NOT_FOUND when getTransaction reports NOT_FOUND", async () => {
+      mocks.server.getTransaction.mockResolvedValueOnce({ status: "NOT_FOUND" });
+      const status = await checkDepositStatus("test-hash");
+      expect(status).toBe("NOT_FOUND");
+    });
+
+    it("returns UNKNOWN when getTransaction throws an RPC error", async () => {
+      mocks.server.getTransaction.mockRejectedValueOnce(new Error("RPC network down"));
+      const status = await checkDepositStatus("test-hash");
+      expect(status).toBe("UNKNOWN");
+    });
+
+    it("returns UNKNOWN when getTransaction returns an unexpected status", async () => {
+      mocks.server.getTransaction.mockResolvedValueOnce({ status: "SOME_OTHER_STATUS" });
+      const status = await checkDepositStatus("test-hash");
+      expect(status).toBe("UNKNOWN");
+    });
   });
 });

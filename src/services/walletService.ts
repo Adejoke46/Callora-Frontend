@@ -452,3 +452,29 @@ export async function submitVaultDeposit(
 
   return { hash: submission.hash };
 }
+
+export type DepositStatus = "SUCCESS" | "FAILED" | "NOT_FOUND" | "UNKNOWN";
+
+/**
+ * Checks the status of a submitted deposit transaction via Stellar Soroban RPC.
+ * Uses the configured RPC endpoint with the standard RPC_TIMEOUT_MS.
+ */
+export async function checkDepositStatus(hash: string): Promise<DepositStatus> {
+  try {
+    const server = createRpcServer();
+    const transaction = await server.getTransaction(hash);
+
+    if (transaction.status === rpc.Api.GetTransactionStatus.SUCCESS) {
+      return "SUCCESS";
+    }
+    if (transaction.status === rpc.Api.GetTransactionStatus.FAILED) {
+      return "FAILED";
+    }
+    if (transaction.status === rpc.Api.GetTransactionStatus.NOT_FOUND) {
+      return "NOT_FOUND";
+    }
+    return "UNKNOWN";
+  } catch {
+    return "UNKNOWN";
+  }
+}
