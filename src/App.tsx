@@ -214,7 +214,7 @@ const APP_ROUTES = {
   designSystem: "/design-system/docs",
   serverError: "/500",
   rateLimitCard: "/rate-limit",
-  slaCard: "/marketplace/grantfox-wave-compute/sla",
+  slaCard: "/marketplace/:apiId/sla",
   webhookDeliveries: "/webhooks/deliveries",
   onboarding: "/onboarding",
   endpointSummary: "/endpoints",
