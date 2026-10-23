@@ -13,9 +13,11 @@ const mocks = vi.hoisted(() => ({
   server: {
     getAccount: vi.fn(),
     prepareTransaction: vi.fn(),
+    simulateTransaction: vi.fn(),
     sendTransaction: vi.fn(),
     getTransaction: vi.fn(),
   },
+  assembleTransaction: vi.fn((transaction: unknown) => ({ build: () => transaction })),
   walletSnapshot: vi.fn(() => ({ isNetworkMismatch: false })),
 }));
 
@@ -28,7 +30,7 @@ vi.mock("@stellar/freighter-api", () => ({
 
 vi.mock("@stellar/stellar-sdk", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@stellar/stellar-sdk")>();
-  return { ...actual, rpc: { ...actual.rpc, Server: class {
+  return { ...actual, rpc: { ...actual.rpc, assembleTransaction: mocks.assembleTransaction, Server: class {
     constructor(...args: unknown[]) {
       mocks.serverConstructor(...args);
       return mocks.server;
@@ -75,6 +77,7 @@ describe("walletService", () => {
     });
     mocks.signTransaction.mockImplementation(async (xdr: string) => ({ signedTxXdr: xdr, signerAddress: walletAddress }));
     mocks.server.getAccount.mockImplementation(async () => new Account(walletAddress, "123"));
+    mocks.server.simulateTransaction.mockReset().mockResolvedValue({ _parsed: true, latestLedger: 1, events: [], result: {} });
     mocks.server.prepareTransaction.mockImplementation(async (transaction: Transaction) => transaction);
     mocks.server.sendTransaction.mockResolvedValue({
       status: "PENDING",
@@ -325,7 +328,7 @@ describe("walletService", () => {
   });
 
   it("does not request a deposit signature if simulation fails", async () => {
-    mocks.server.prepareTransaction.mockRejectedValueOnce(new Error("simulation failed"));
+    mocks.server.simulateTransaction.mockRejectedValueOnce(new Error("simulation failed"));
     await expect(submitVaultDeposit("50")).rejects.toMatchObject({ code: "NETWORK_ERROR" });
     expect(mocks.signTransaction).not.toHaveBeenCalled();
   });
@@ -354,6 +357,34 @@ describe("walletService", () => {
   it("reports a definitive failed deposit without requiring reconciliation", async () => {
     mocks.server.getTransaction.mockResolvedValueOnce({ status: "FAILED" });
     await expect(submitVaultDeposit("50")).rejects.toMatchObject({ code: "TRANSACTION_FAILED", requiresReconciliation: false });
+  });
+
+  it.each([4, 37, 8, 44, 99])("rejects contract simulation code %s before signing or submitting", async (code) => {
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.server.simulateTransaction.mockResolvedValueOnce({ error: `HostError: Error(Contract, #${code}) PRIVATE_XDR ${walletAddress}`, events: [] });
+    await expect(submitVaultDeposit("50")).rejects.toMatchObject({
+      code: "CONTRACT_REJECTED", contractErrorCode: code, requiresReconciliation: false,
+    });
+    expect(mocks.signTransaction).not.toHaveBeenCalled();
+    expect(mocks.server.sendTransaction).not.toHaveBeenCalled();
+    const payload = JSON.stringify(logged.mock.calls);
+    expect(payload).toContain(String(code));
+    expect(payload).not.toMatch(/PRIVATE_XDR|HostError/);
+    expect(payload).not.toContain(walletAddress);
+  });
+
+  it("preserves simulation timeout and unreachable-RPC messages", async () => {
+    for (const [error, expected] of [["timeout", "timed out before"], ["offline", "Could not reach Stellar RPC"]]) {
+      mocks.server.simulateTransaction.mockRejectedValueOnce(new Error(error));
+      await expect(submitVaultDeposit("50")).rejects.toMatchObject({ code: "NETWORK_ERROR", message: expect.stringContaining(expected), requiresReconciliation: false });
+    }
+    expect(mocks.signTransaction).not.toHaveBeenCalled();
+  });
+
+  it("does not classify a local assembly failure as a transport error", async () => {
+    mocks.assembleTransaction.mockImplementationOnce(() => { throw new Error("raw simulation XDR"); });
+    await expect(submitVaultDeposit("50")).rejects.toMatchObject({ code: "CONTRACT_REJECTED", requiresReconciliation: false });
+    expect(mocks.signTransaction).not.toHaveBeenCalled();
   });
 
   describe("checkDepositStatus", () => {
