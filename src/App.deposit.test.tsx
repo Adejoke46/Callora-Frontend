@@ -425,6 +425,20 @@ describe("App deposit modal timed transitions", () => {
     expect(screen.getAllByText(/334\.62/).length).toBeGreaterThan(0);
   });
 
+  it("shows the vault rejection message/code and allows retry without reconciliation", async () => {
+    const { WalletServiceError } = await import("./services/walletService");
+    const error = new WalletServiceError("CONTRACT_REJECTED", "This wallet is not on the vault's deposit allowlist.");
+    Object.assign(error, { contractErrorCode: 44 });
+    walletMocks.submitVaultDeposit.mockRejectedValueOnce(error);
+    const { amountInput } = await renderModalReady();
+    setAmount(amountInput, "80");
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Approve deposit transaction" })); });
+    expect(screen.getByRole("alert").textContent).toContain("allowlist. (code 44)");
+    expect(screen.queryByRole("button", { name: "Check status" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Retry deposit" }));
+    expect((screen.getByPlaceholderText("0.00") as HTMLInputElement).value).toBe("80");
+  });
+
   it("shows failure and retry restores the submitted amount", async () => {
     const { WalletServiceError } = await import("./services/walletService");
     walletMocks.submitVaultDeposit.mockRejectedValue(

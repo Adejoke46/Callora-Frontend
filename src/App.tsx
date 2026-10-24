@@ -117,6 +117,7 @@ export function clearPendingDeposit(): void {
 }
 
 type WalletServiceFailure = Error & {
+  contractErrorCode?: number;
   code: WalletServiceErrorCode;
   requiresReconciliation: boolean;
 };
@@ -469,6 +470,7 @@ function App() {
   const [walletAddress, setWalletAddress] = useState("");
   const [isAddingTrustline, setIsAddingTrustline] = useState(false);
   const [trustlineCheckVersion, setTrustlineCheckVersion] = useState(0);
+  const [depositContractErrorCode, setDepositContractErrorCode] = useState<number | null>(null);
   const [depositFailureCode, setDepositFailureCode] = useState<WalletServiceErrorCode | null>(null);
   const [depositRequiresReconciliation, setDepositRequiresReconciliation] = useState(false);
   const [txHash, setTxHash] = useState("");
@@ -774,6 +776,7 @@ function App() {
         return;
       }
       setDepositFailureCode(failureCode);
+      setDepositContractErrorCode(walletError?.contractErrorCode ?? null);
       const reqReconciliation = walletError?.requiresReconciliation ?? false;
       setDepositRequiresReconciliation(reqReconciliation);
       const finalHash = capturedHash || txHash;
@@ -1447,8 +1450,10 @@ function App() {
                     )}
 
                     {depositStage === "failed" && (
-                      <article className="error-card">
-                        <strong>{depositFailureCode === "SIGNATURE_REJECTED" ? "Signature rejected" : "Deposit failed"}</strong>
+                      <article className="error-card" role="alert">
+                        <strong>{depositFailureCode === "CONTRACT_REJECTED"
+                          ? `${statusMessage}${depositContractErrorCode === null ? "" : ` (code ${depositContractErrorCode})`}`
+                          : depositFailureCode === "SIGNATURE_REJECTED" ? "Signature rejected" : "Deposit failed"}</strong>
                         <p>{statusMessage}</p>
                         {hasUnconfirmedDeposit && validityTimeRemaining !== null && validityTimeRemaining > 0 && (
                           <p className="helper-text" style={{ marginTop: "0.5rem" }}>
