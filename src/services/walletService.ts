@@ -28,6 +28,8 @@ import {
   STELLAR_VAULT_CONTRACT_ID,
   type StellarNetwork,
 } from "../config/constants";
+import { decodeVaultError } from "./vaultErrors";
+import { logError } from "./SecureErrorHandler";
 import { walletStore } from "../state/walletStore";
 import { readVaultDepositPreflight, type VaultDepositPreflight } from "./vaultReads";
 
@@ -51,6 +53,7 @@ export type WalletServiceErrorCode =
   | "INVALID_AMOUNT"
   | "TRUSTLINE_MISSING"
   | "UNFUNDED_ACCOUNT"
+  | "CONTRACT_REJECTED"
   | "TRANSACTION_FAILED"
   | "WALLET_ERROR"
   | "NETWORK_ERROR";
@@ -58,16 +61,19 @@ export type WalletServiceErrorCode =
 export class WalletServiceError extends Error {
   readonly code: WalletServiceErrorCode;
   readonly requiresReconciliation: boolean;
+  readonly contractErrorCode?: number;
 
   constructor(
     code: WalletServiceErrorCode,
     message: string,
     requiresReconciliation = false,
+    contractErrorCode?: number,
   ) {
     super(message);
     this.name = "WalletServiceError";
     this.code = code;
     this.requiresReconciliation = requiresReconciliation;
+    this.contractErrorCode = contractErrorCode;
   }
 }
 
@@ -402,11 +408,24 @@ export async function submitVaultDeposit(
     .setTimeout(TRANSACTION_TIMEOUT_SECONDS)
     .build();
 
-  let preparedTransaction;
+  let simulation;
   try {
-    preparedTransaction = await server.prepareTransaction(transaction);
+    simulation = await server.simulateTransaction(transaction);
   } catch (error) {
     throw mapRpcError(error);
+  }
+  if (rpc.Api.isSimulationError(simulation)) {
+    const decoded = decodeVaultError(simulation);
+    logError("vault-deposit", "CONTRACT_REJECTED", { contractErrorCode: decoded.code });
+    throw new WalletServiceError("CONTRACT_REJECTED", decoded.message, false, decoded.code);
+  }
+  // Assembly is local, not a transport operation. Do not mislabel malformed or
+  // restoration-required simulation responses as connectivity failures.
+  let preparedTransaction;
+  try {
+    preparedTransaction = rpc.assembleTransaction(transaction, simulation).build();
+  } catch {
+    throw new WalletServiceError("CONTRACT_REJECTED", "The vault could not prepare this deposit. No funds were moved.");
   }
 
   let signature;
